@@ -22,10 +22,8 @@ class ExamController extends Controller
         $student = auth()->user();
         $group = $student->group;
     
-        // Guruhdagi semestrlar
         $semesters = $group->semesters;
     
-        // Hozirgi semestrni aniqlash (bugungi sana qaysi oralikda)
         $today = now();
         $currentSemester = $semesters->first(function ($semester) use ($today) {
             return $today->between($semester->start_date, $semester->end_date);
@@ -109,7 +107,6 @@ class ExamController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validation
         $validated = $request->validate([
             'subject' => 'required',
             'exam_date' => 'required',

@@ -60,7 +60,7 @@ class PageController extends Controller
     public function allAdmins(){
 
         $users = User::whereHas('roles', function ($query) {
-            $query->where('roles.id', 1); // 'roles.id' qilib yozish kerak!
+            $query->where('roles.id', 1); 
         })->get();
 
         return view('admins.index', compact('users'));
@@ -69,7 +69,7 @@ class PageController extends Controller
     public function teachersIndex(){
 
         $users = User::whereHas('roles', function ($query) {
-            $query->where('roles.id', 3); // 'roles.id' qilib yozish kerak!
+            $query->where('roles.id', 3); 
         })->get();
 
         return view('teachers.index', compact('users'));
@@ -86,7 +86,7 @@ class PageController extends Controller
 
     public function personalData()
     {
-        $user = auth()->user(); // ✅ login bo‘lgan foydalanuvchi
+        $user = auth()->user(); // 
     
         return view('personal-data', compact('user'));
     }
@@ -134,10 +134,8 @@ class PageController extends Controller
         // Admin bo‘lsa - kiritilgan groupId, oddiy foydalanuvchi bo‘lsa - o‘zining group_id si
         $effectiveGroupId = $isAdmin ? $groupId : $user->group_id;
     
-        // Guruh mavjudligini tekshiramiz
         $group = Group::findOrFail($effectiveGroupId);
     
-        // O‘sha guruhga tegishli imtihonlar
         $exams = Exam::whereHas('groups', function ($query) use ($effectiveGroupId) {
             $query->where('groups.id', $effectiveGroupId);
         })
@@ -151,15 +149,8 @@ class PageController extends Controller
     public function teacherExams()
     {
         $user = auth()->user();
-    
-        // // Ruxsat faqat teacherga
-        // if (!$user->roles->contains('name', 'teacher')) {
-        //     abort(403, 'Siz teacher emassiz!');
-        // }
-    
-        // Teacherga biriktirilgan examlar (exams.user_id = auth()->id())
         $exams = Exam::where('user_id', $user->id)
-            ->with(['subject', 'groups']) // fan va guruhlar bilan birga yuklaymiz
+            ->with(['subject', 'groups']) 
             ->orderBy('date')
             ->get();
     
@@ -215,7 +206,6 @@ class PageController extends Controller
         return view('filter', compact('programs', 'selectedProgram', 'selectedGroup', 'selectedSemester'));
     }
     
-    // AJAX: Program bo‘yicha guruhlar
     public function getGroupsByProgram($programId)
     {
         $groups = Group::where('program_id', $programId)->orderBy('group_name')->get();
@@ -225,18 +215,12 @@ class PageController extends Controller
     // Guruh bo‘yicha semestrlar
     public function getSemestersByGroup($groupId)
     {
-        // Semestrlar jadvalidan o‘sha guruhga tegishli semestrlarni olish
         $semesters = Semester::where('group_id', $groupId)
             ->orderBy('start_date')
             ->get();
 
         return response()->json($semesters);
     }
-
-
-    
-
-    
 
 
     public function showCalendar(Request $request)
@@ -353,26 +337,22 @@ class PageController extends Controller
 
     public function performance(Request $request)
     {
-        $user = auth()->user();  // hozirgi login qilgan user
+        $user = auth()->user();  
     
-        // Semestrni tanlash
         $semesterId = $request->get('semester_id');
         $group = $user->group;
     
-        // Barcha semestrlarni olish
         $semesters = $group->semesters;
     
         if (!$semesterId) {
             $semesterId = $semesters->first()->id ?? null;
         }
     
-        // Shu semestrdagi fanlar (group_subject lar)
         $groupSubjects = GroupSubject::where('group_id', $user->group_id)
             ->where('semester_id', $semesterId)
             ->with('subject')
             ->get();
     
-        // Talabaning shu semestrdagi baholari (joriy ball)
         $grades = Grade::where('student_id', $user->id)
             ->where('type', 'current')
             ->whereHas('schedule', function ($q) use ($semesterId) {
@@ -381,14 +361,12 @@ class PageController extends Controller
             ->with('schedule')
             ->get();
     
-        // Talabaning shu semestrdagi yakuniy imtihon natijalari
         $results = Result::where('student_id', $user->id)
             ->with('test')
             ->get();
     
         // Fan va umumiy ball hisoblash
         $subjectsWithScores = $groupSubjects->map(function ($groupSubject) use ($grades, $results, $user) {
-            // shu fanga tegishli barcha joriy ballarni yig'ish
             $score = $grades
                 ->filter(fn($g) => $g->schedule->group_subject_id == $groupSubject->id)
                 ->sum('score');
@@ -408,7 +386,7 @@ class PageController extends Controller
             $finalGrade = $results
                 ->firstWhere(fn($r) => $r->test->group_subject_id == $groupSubject->id)?->score ?? 0;
     
-            // 🔹 Umumiy ball = joriy + oraliq + yakuniy
+            //  Umumiy ball = joriy + oraliq + yakuniy
             $total = $score + ($midtermGrade ?? 0) + $finalGrade;
     
             return [
@@ -442,7 +420,6 @@ class PageController extends Controller
             $semesterId = $semesters->first()->id ?? null;
         }
     
-        // Guruhga tegishli fanlar, semestr bo‘yicha
         $groupSubjects = GroupSubject::where('group_id', $user->group_id)
             ->where('semester_id', $semesterId)
             ->with(['subject', 'teacher'])
@@ -477,15 +454,10 @@ class PageController extends Controller
     }
     
 
-    /**
-     * O'qituvchi darslari kalendarini ko'rsatadi.
-     */
     public function showTeacherCalendar(Request $request)
     {
-        // Foydalanuvchi tizimga kirgan o'qituvchi ekanligiga ishonch hosil qilish.
         $teacher = auth()->user();
 
-        // Agar foydalanuvchi autentifikatsiyadan o'tmagan bo'lsa, xatolik qaytarish
         if (!$teacher) {
             abort(403, 'Siz ushbu sahifani ko\'rish huquqiga ega emassiz.');
         }
@@ -570,9 +542,8 @@ class PageController extends Controller
             return redirect()->route('all.admins');
         }
     
-        // Faqat admin roliga ega foydalanuvchilar
         $users = User::whereHas('roles', function ($query) {
-                $query->where('roles.id', 1); // 1 - admin rolining IDsi
+                $query->where('roles.id', 1); 
             })
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {

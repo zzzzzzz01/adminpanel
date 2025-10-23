@@ -89,7 +89,7 @@ class ScheduleController extends Controller
         $group = Group::findOrFail($groupId);
         $semester = Semester::findOrFail($semesterId);
     
-        // 🔹 Faqat dars jadvali (schedule) mavjud bo‘lgan haftalarni olish
+        // Faqat dars jadvali (schedule) mavjud bo‘lgan haftalarni olish
         $weeks = Week::where('group_id', $group->id)
             ->where('semester_id', $semester->id)
             ->where('week_type', 'Nazariy talim')
@@ -103,7 +103,7 @@ class ScheduleController extends Controller
                 ->where('week_id', $week->id)
                 ->count();
     
-            // 🔸 Agar shu hafta uchun kamida bitta dars mavjud bo‘lsa — qo‘shamiz
+            //  Agar shu hafta uchun kamida bitta dars mavjud bo‘lsa — qo‘shamiz
             if ($count > 0) {
                 $weekData[] = [
                     'week' => $week,
@@ -112,7 +112,7 @@ class ScheduleController extends Controller
             }
         }
     
-        // 🔹 Faqat dars mavjud bo‘lsa — semestrni ko‘rsatamiz
+        // Faqat dars mavjud bo‘lsa — semestrni ko‘rsatamiz
         $groupSemesterPairs = [];
         if (!empty($weekData)) {
             $groupSemesterPairs[] = [
@@ -150,17 +150,13 @@ class ScheduleController extends Controller
 
     
     
-    
-
-    
     public function edit(Request $request, $id)
     {
         $schedule = Schedule::findOrFail($id);
 
-        // Agar kerak bo‘lsa, dropdownlar uchun ma’lumotlar
         $subjects = Subject::all();
         $teachers = User::whereHas('roles', function ($query) {
-            $query->where('roles.id', 3); // 'roles.id' qilib yozish kerak!
+            $query->where('roles.id', 3); 
             })->get();
         $sessions = Session::all();
 
@@ -172,54 +168,6 @@ class ScheduleController extends Controller
         return view('schedule.edit', compact('schedule', 'subjects', 'teachers', 'sessions', 'programId','groupId','academicYear','semesterId'));
     }
 
-
-    // public function create(Request $request)
-    // {
-    //     $auditoriums = Auditorium::all();
-    //     $lessonPairs = LessonPair::all();
-
-    //     // dd($request->all()); 
-
-    //     if (!$request->group_id || !$request->semester_id) {
-    //         return back()->with('error', 'Group yoki Semester tanlanmagan!');
-    //     }
-    
-    //     $date = $request->date 
-    //         ? Carbon::parse($request->date) 
-    //         : Carbon::parse(Semester::findOrFail($request->semester_id)->start_date);
-
-    //     $group_id = $request->group_id;
-        
-    //     $groups = Group::all();
-    //     $teachers = User::whereHas('roles', function ($query) {
-    //         $query->where('roles.id', 3);
-    //     })->get();
-    
-    //     $group = Group::with('semesters')->findOrFail($group_id);
-    //     $semester = Semester::findOrFail($request->semester_id);
-    
-    //     // $semesterId foydalanuvchi tanlagan semestr
-    //     $semesterId = $request->semester_id; 
-
-    //     // Guruhga biriktirilgan fanlar, faqat tanlangan semestrga tegishlilari
-    //     $groupSubjects = GroupSubject::with(['subject', 'teacher'])
-    //         ->where('group_id', $group->id)
-    //         ->get();    
-
-    //     $sessions = Session::all();
-    
-    //     $week = Week::where('group_id', $group->id)
-    //         ->where('semester_id', $semester->id)
-    //         ->where('week_type', 'Nazariy talim')
-    //         ->whereDate('start_date', '<=', $date)
-    //         ->whereDate('end_date', '>=', $date)
-    //         ->first();
-    
-    //     return view('schedule.create', compact(
-    //         'date', 'group_id', 'groups', 'group', 'teachers',
-    //         'semester','groupSubjects', 'sessions', 'week', 'auditoriums', 'lessonPairs'
-    //     ));
-    // }
 
     public function scheduleCreate(Request $request)
     {
@@ -270,8 +218,6 @@ class ScheduleController extends Controller
         ));
     }
     
-    
-
 
 
     public function scheduleStore(Request $request)
@@ -292,7 +238,7 @@ class ScheduleController extends Controller
 
         $date = Carbon::parse($request->date);
     
-        // 🔎 Kiritilgan sanani mos haftaga tekshiramiz
+        //  Kiritilgan sanani mos haftaga tekshiramiz
         $weekId = Week::where('semester_id', $request->semester_id)
             ->where('group_id', $request->group_id)
             ->where('start_date', '<=', $request->date)
@@ -305,7 +251,7 @@ class ScheduleController extends Controller
             return back()->withErrors(['date' => 'Tanlangan sana hech qaysi haftaga mos kelmadi!']);
         }
     
-        // ✅ Dars jadvalini yaratamiz
+        // Dars jadvalini yaratamiz
         $schedule = Schedule::create([
             'date'        => $request->date,
             'group_id'    => $request->group_id,
@@ -313,18 +259,17 @@ class ScheduleController extends Controller
             'session_id'  => $request->session_id,
             'lesson_pair_id'    => $request->lesson_pair_id,
             'auditorium_id'    => $request->auditorium_id,
-            'week_id'     => $weekId, // ✅ endi har doim week_id yoziladi
+            'week_id'     => $weekId, 
             'group_subject_id' => $request->group_subject_id,
         ]);
 
-            // Shu guruhdagi barcha talabalar uchun jurnal yozib qo'yamiz
         $students = User::where('group_id', $request->group_id)->get();
 
         foreach ($students as $student) {
             GradeJournal::create([
                 'schedule_id' => $schedule->id,
                 'student_id'  => $student->id,
-                'grade'       => null, // hozircha bo'sh, keyin o'qituvchi qo'yadi
+                'grade'       => null,
             ]);
         }
     
@@ -380,7 +325,7 @@ class ScheduleController extends Controller
     {
         
         $groupId = $request->group_id;
-        $semesterId = $request->semester_id; // endi semester_id ishlatyapmiz
+        $semesterId = $request->semester_id;
         
         // dd($groupId, $semesterId);
 
@@ -391,11 +336,7 @@ class ScheduleController extends Controller
     
         return view('schedule.generate-week', compact('weeks', 'groupId', 'semesterId'));
     }
-    
-    
-    
-    
-    
+       
 
     // Jadvalni ko‘paytirish jarayoni
     public function generateWeekProcess(Request $request)
@@ -475,7 +416,6 @@ class ScheduleController extends Controller
     {
         $semesters = $group->semesters;
     
-        // Tanlangan semester yoki birinchi semester
         $selectedSemesterId = $request->semester_id ?? $semesters->first()->id ?? null;
         $selectedSemester = Semester::find($selectedSemesterId);
     
@@ -500,7 +440,7 @@ class ScheduleController extends Controller
                 return $today->between($start, $end);
             });
 
-            // Agar hozirgi hafta topilmasa, oxirgi "Nazariy ta’lim" haftasini tanla
+            // Agar hozirgi hafta topilmasa, oxirgi "Nazariy talim" haftasini tanla
             if ($currentWeek) {
                 $selectedWeekId = $currentWeek->id;
             } else {
@@ -530,129 +470,6 @@ class ScheduleController extends Controller
     }
     
     
-    
-
-    
-    
-    
-    
-    
-    
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    // public function create(Group $group)
-    // {
-    //     // dd($group);
-
-    //     $groups = Group::all();
-
-    //     $teachers = User::whereHas('roles', function ($query) {
-    //         $query->where('roles.id', 3); // 'roles.id' qilib yozish kerak!
-    //     })->get();
-
-    //     $students = User::whereHas('roles', function ($query) {
-    //         $query->where('roles.id', 2); // 'roles.id' qilib yozish kerak!
-    //     })->get();
-
-    //     $subjects = Subject::all();
-    //     $weekdays = Weekday::all();
-    //     $sessions = Session::all();
-        
-    //     // dd($subjects);
-
-    //     return view('schedule.create', compact('teachers', 'students', 'subjects', 'weekdays', 'groups', 'group', 'sessions'));
-    // }
-
-    // public function create(Group $group, Week $week, Weekday $weekday)
-    // {
-    //     // dd($group->id, $week->id, $weekday->id);
-    //     // $week = Week::findOrFail($week);
-
-    //     $semester_id = $group->semester_id;
-
-    //     $subjects = Subject::all();
-    //     $teachers = User::whereHas('roles', function ($query) {
-    //                 $query->where('roles.id', 3); // 'roles.id' qilib yozish kerak!
-    //             })->get();
-    //     $sessions = Session::all();
-
-    //     return view('schedule.create', compact('week', 'group', 'weekday', 'subjects', 'teachers', 'sessions', 'semester_id'));
-    // }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    // public function store(Request $request, Group $group)
-    // {
-    //     $validated =  $request->validate([
-    //         'room'=>'required',
-    //         'start_time'=>'required',
-    //         'end_time'=>'required',
-    //         'teacher_id'=>'required',
-    //         'group_id'=>'required',
-    //         'subject_id'=>'required',
-    //         'weekday_id'=>'required',
-    //         'session_id' => 'required|exists:sessions,id',
-    //         'group_id' => 'required|exists:groups,id',
-    //         'week_id' => 'required|exists:weeks,id',
-    //         'semester_id' => 'required|exists:semesters,id',
-    //     ]);
-
-    //     $week = Week::findOrFail($request->week_id);
-
-    //     // dd($request);
-    //     // 1. Dars jadvalini yaratish
-    //     $schedule = Schedule::create($validated);
-
-    //     $students = $group->students; 
-    
-    //     // 2. O'qituvchi uchun davomat yaratish (faqat tanlangan o'qituvchi)
-    //     foreach ($students as $student) {
-    //         Attendance::create([
-    //             'schedule_id' => $schedule->id,
-    //             'student_id' => $student->id, // Talaba IDsi
-    //             'status' => 1 // Default holat
-    //         ]);
-    //     }
-    
-    //     return redirect()->route('schedule.show', $validated['group_id'])
-    //                    ->with('success', __('words.schedule.create.success'));
-    // }
 
     /**
      * Display the specified resource.
@@ -665,23 +482,23 @@ class ScheduleController extends Controller
         $user = auth()->user();
         $isAdmin = $user->roles->contains('id', 1);
     
-        // ✅ Tanlangan semestrni aniqlaymiz
+        // Tanlangan semestrni aniqlaymiz
         $semesterId = $request->input('semester_id', $group->current_semester);
     
-        // ✅ Faqat shu semestrdagi haftalarni olamiz
+        // Faqat shu semestrdagi haftalarni olamiz
         $weeks = Week::where('group_id', $group->id)
              ->where('semester_number', $semesterId)
              ->where('week_type', 'Nazariy talim')
              ->get();
     
-        // ✅ Hozirgi sana bo‘yicha hafta topiladi (yoki oxirgi hafta tanlanadi)
+        // Hozirgi sana bo‘yicha hafta topiladi (yoki oxirgi hafta tanlanadi)
         $currentDate = now()->format('Y-m-d');
         $defaultWeek = $weeks->firstWhere(fn($w) => $w->start_date <= $currentDate && $w->end_date >= $currentDate);
     
-        // ✅ So‘rovdan yoki oxirgi haftadan hafta aniqlanadi
+        // So‘rovdan yoki oxirgi haftadan hafta aniqlanadi
         $week_id = $request->input('week_id') ?? $defaultWeek?->id ?? $weeks->last()?->id;
     
-        // ✅ Dars jadvalini har bir kun uchun olib kelamiz
+        // Dars jadvalini har bir kun uchun olib kelamiz
         $schedules = [];
         foreach ($weekdays as $weekday) {
             $schedules[$weekday->id] = Schedule::where('weekday_id', $weekday->id)
@@ -751,7 +568,6 @@ class ScheduleController extends Controller
             return back()->withErrors(['group_id' => 'Bu guruhga biriktirilgan semestr yo\'q!']);
         }
     
-        // Yangi haftani yaratamiz
         $week = Week::create([
             'group_id' => $group->id,
             'semester_id' => $group->semester->id,
@@ -762,7 +578,6 @@ class ScheduleController extends Controller
                                 ->count() + 1,
         ]);
     
-        // To'g'ri redirect qilish
         return redirect()->route('schedule.show', [
             'group' => $group->id,
             'week_id' => $week->id
@@ -776,7 +591,6 @@ class ScheduleController extends Controller
         
         $group->load('semester');
     
-        // Haftalarni ketma-ketlik raqami bo'yicha tartiblab olamiz
         $weeks = Week::where('group_id', $group->id)
                     ->orderBy('week_number')
                     ->get();
@@ -784,25 +598,6 @@ class ScheduleController extends Controller
         return view('schedule.week-create', compact('group', 'semester', 'weeks'));
     }
     
-    
-
-
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    // public function edit(string $id)
-    // {
-    //     //
-    // }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    // public function update(Request $request, string $id)
-    // {
-    //     //
-    // }
 
     /**
      * Remove the specified resource from storage.

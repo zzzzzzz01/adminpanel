@@ -37,11 +37,6 @@ class TopicController extends Controller
             $path = $request->file('file')->storeAs('topics', $name, 'public');
         }
 
-        // $filePath = null;
-        // if ($request->hasFile('file')) {
-        //     $filePath = $request->file('file')->store('topics', 'public');
-        // }
-
         Topic::create([
             'group_subject_id' => $groupSubject->id,
             'title' => $request->title,
@@ -55,7 +50,7 @@ class TopicController extends Controller
     public function edit(Topic $topic)
     {
         $groupSubject = $topic->groupSubject;
-        $topics = $groupSubject->topics()->with('user')->get(); // ✅ faqat shu groupSubjectga tegishli mavzular
+        $topics = $groupSubject->topics()->with('user')->get();
         return view('groups.groupSubject.topics.index', compact('topic', 'topics', 'groupSubject'));
     }
 
@@ -67,9 +62,7 @@ class TopicController extends Controller
             'file'  => 'nullable|file|max:2048',
         ]);
 
-        // Faylni yangilash
         if ($request->hasFile('file')) {
-            // eski faylni o‘chirish
             if ($topic->file_path && Storage::exists($topic->file_path)) {
                 Storage::delete($topic->file_path);
             }
@@ -88,7 +81,6 @@ class TopicController extends Controller
     // Mavzuni o‘chirish
     public function destroy(Topic $topic)
     {
-        // Faylni ham o‘chirish
         if ($topic->file_path && Storage::exists($topic->file_path)) {
             Storage::delete($topic->file_path);
         }
@@ -101,7 +93,6 @@ class TopicController extends Controller
 
     public function showStudentTopics(GroupSubject $groupSubject)
     {
-        // faqat shu groupSubjectga tegishli mavzularni olish
         $topics = $groupSubject->topics()->with('user')->get();
 
         return view('students.topics.index', compact('groupSubject', 'topics'));
@@ -110,20 +101,17 @@ class TopicController extends Controller
     public function teacherIndex()
     {
         $teacherId = auth()->id();
-        $today = Carbon::today(); // bugungi sana
+        $today = Carbon::today(); 
     
-        // Aktiv semestrni aniqlaymiz
         $activeSemester = Semester::where('start_date', '<=', $today)
             ->where('end_date', '>=', $today)
             ->first();
     
-        // Agar aktiv semestr topilmasa, bo‘sh qiymat qaytariladi
         if (!$activeSemester) {
             $groupSubjects = collect(); // bo‘sh kolleksiya
             return view('teachers.topics.index', compact('groupSubjects', 'teacherId', 'activeSemester'));
         }
     
-        // Faqat ustozga tegishli va hozirgi semestrga oid fanlar
         $groupSubjects = GroupSubject::with(['group', 'subject', 'topics', 'semester'])
             ->where('teacher_id', $teacherId)
             ->where('semester_id', $activeSemester->id)
@@ -136,7 +124,6 @@ class TopicController extends Controller
     {
         $teacherId = auth()->id();
 
-        // Faqat ustozga tegishli group_subjectlar
         $groupSubjects = GroupSubject::with(['group', 'subject', 'topics'])
             ->where('teacher_id', $teacherId)
             ->get();
@@ -155,10 +142,8 @@ class TopicController extends Controller
     {
         $today = Carbon::today();
     
-        // Fan semestri
         $semester = $groupSubject->semester;
     
-        // Agar semestr tugagan bo‘lsa — ruxsat bermaymiz
         if ($semester && $semester->end_date < $today) {
             return redirect()->back()
                 ->with('error', 'Bu fan uchun semestr muddati tugagan. Yangi mavzu qo‘shish mumkin emas.');
@@ -179,14 +164,13 @@ class TopicController extends Controller
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $fileName = $file->getClientOriginalName();
-            // Faylni saqlash
             $file->storeAs('topics', $fileName, 'public');
         }
     
         Topic::create([
             'group_subject_id' => $groupSubject->id,
             'title' => $request->title,
-            'file_path' => $fileName, // faqat fayl nomi saqlanadi
+            'file_path' => $fileName, 
             'user_id' => Auth::id(),
         ]);
     
@@ -199,7 +183,6 @@ class TopicController extends Controller
     {
         $search = $request->input('search');
 
-        // Agar qidiruv bo‘sh bo‘lsa, asosiy sahifaga qaytadi
         if (empty($search)) {
             return redirect()->route('topics.showByGroupSubject', $groupSubject->id);
         }
@@ -240,7 +223,6 @@ class TopicController extends Controller
             })
             ->get();
     
-        // 🔍 Qidirilgan so‘zni highlight qilish (HTML-ni e() bilan qamralmang!)
         foreach ($groupSubjects as $gs) {
             $gs->group->group_name = preg_replace(
                 "/(" . preg_quote($search, '/') . ")/i",
@@ -271,20 +253,16 @@ class TopicController extends Controller
         ]);
     
         if ($request->hasFile('file_path')) {
-            // eski faylni o‘chirish
             if ($topic->file_path && Storage::exists('topics/'.$topic->file_path)) {
                 Storage::delete('topics/'.$topic->file_path);
             }
     
             $file = $request->file('file_path');
     
-            // original nomini olish
             $originalName = $file->getClientOriginalName();
     
-            // Faylni asl nomi bilan saqlash
             $file->storeAs('topics', $originalName, 'public');
     
-            // Bazaga faqat fayl nomini yozamiz
             $topic->file_path = $originalName;
         }
     
@@ -297,7 +275,6 @@ class TopicController extends Controller
 
     public function teacherTopicDestroy(Topic $topic)
     {
-        // Faylni ham o‘chirish
         if ($topic->file_path && Storage::exists($topic->file_path)) {
             Storage::delete($topic->file_path);
         }
@@ -313,7 +290,6 @@ class TopicController extends Controller
     {
         $groupSubject = GroupSubject::with('topics.user')->findOrFail($groupSubjectId);
     
-        // Agar view $topics kutsa:
         $topics = $groupSubject->topics()->with('user')->latest()->get();
     
         return view('teachers.topics.list', compact('groupSubject', 'topics'));
@@ -325,15 +301,12 @@ class TopicController extends Controller
     {
         $search = $request->input('search');
     
-        // `$groupSubject`ni olish
         $groupSubject = $topic->groupSubject;
     
-        // Agar qidiruv bo‘sh bo‘lsa, asosiy sahifaga qaytadi
         if (empty($search)) {
             return redirect()->route('topics.index', $groupSubject->id);
         }
     
-        // Faqat shu groupSubjectga tegishli mavzularni qidirish
         $topics = Topic::where('group_subject_id', $groupSubject->id)
             ->where('title', 'like', "%{$search}%")
             ->get();

@@ -27,28 +27,23 @@ class NotificationController extends Controller
 
     public function readAndRedirectToPost(Notification $notification)
     {
-        // 1. Foydalanuvchi tekshiruvi
         if ($notification->notifiable_id !== auth()->id()) {
             abort(403, 'Ushbu xabarnoma sizga tegishli emas');
         }
     
-        // 2. Notificationni o'qilgan deb belgilash
         $notification->markAsRead();
 
         // dd($notification->data);
     
-        // 3. Post ID ni olish
         $postId = $notification->data['id'] ?? null;
 
         // dd($postId);
     
-        // 4. Agar post_id topilmasa
         if (!$postId) {
             return redirect()->route('notifications.index')
                    ->with('error', 'Post topilmadi');
         }
     
-        // 5. Post sahifasiga yo'naltirish
         return redirect()->route('posts.show', $postId);
     }
 

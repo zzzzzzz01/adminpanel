@@ -14,7 +14,6 @@ class AssignmentSubmissionController extends Controller
     {
         $user = auth()->user();
     
-        // Agar bog‘lanish bo‘lmasa xatolik chiqmasin
         if (
             !$assignment->midtermInterval || 
             !$assignment->midtermInterval->groupSubject || 
@@ -46,14 +45,6 @@ class AssignmentSubmissionController extends Controller
                         ->where('student_id', $user->id)
                         ->first();
     
-        // Agar mavjud bo‘lsa, eski faylni o‘chirib tashlash
-        // if ($existing) {
-        //     if ($existing->file_path && \Storage::disk('public')->exists($existing->file_path)) {
-        //         \Storage::disk('public')->delete($existing->file_path);
-        //     }
-        //     $existing->delete();
-        // }
-    
         // Original fayl nomi bilan saqlash
         $file = $request->file('file');
         $originalName = $file->getClientOriginalName();
@@ -79,8 +70,6 @@ class AssignmentSubmissionController extends Controller
     {
         $user = auth()->user();
 
-        // Xavfsizlik: faqat talaba yoki o'qituvchi ko‘ra oladi
-
         $submissions = AssignmentSubmission::all();
 
 
@@ -99,7 +88,6 @@ class AssignmentSubmissionController extends Controller
     {
         $user = auth()->user();
 
-        // Xavfsizlik: faqat talaba yoki o'qituvchi ko‘ra oladi
 
         $submissions = AssignmentSubmission::all();
 

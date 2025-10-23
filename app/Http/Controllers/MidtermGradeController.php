@@ -16,7 +16,6 @@ class MidtermGradeController extends Controller
             'grade' => 'required|numeric|min:0|max:100',
         ]);
     
-        // submissionni topib olish
         $submission = AssignmentSubmission::findOrFail($request->assignment_submission_id);
 
         // dd($submission->id);
@@ -27,7 +26,6 @@ class MidtermGradeController extends Controller
 
         // dd($assignment->midtermInterval->group_subject_id);
     
-        // create orqali group_subject_id ni ham qo‘shib yuboramiz
         MidtermGrade::create([
             'student_id' => $request->student_id,
             'assignment_submission_id' => $submission->id,
@@ -64,20 +62,18 @@ class MidtermGradeController extends Controller
 
         // dd($request->all());
     
-        // submissionni topib olish
         $submission = AssignmentSubmission::findOrFail($request->assignment_submission_id);
         $assignment = $submission->assignment;
 
         // dd($assignment->id);
     
-        // Dinamik validatsiya: agar grade > max_score bo‘lsa, xato
+        // Agar grade > max_score bo‘lsa, xato
         if ($request->grade > $assignment->max_score) {
             return redirect()->back()
                 ->withErrors(['grade' => 'Baho maksimal ball (' . $assignment->max_score . ') dan oshmasligi kerak!'])
                 ->withInput();
         }
     
-        // Bahoni saqlash
         MidtermGrade::create([
             'student_id' => $request->student_id,
             'assignment_submission_id' => $submission->id,

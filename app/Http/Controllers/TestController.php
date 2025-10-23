@@ -12,7 +12,7 @@ public function testCreate()
 
     $groupSubjects = GroupSubject::with(['group', 'subject'])
         ->where('teacher_id', $teacherId)
-        ->whereDoesntHave('tests') // faqat test yaratilmaganlar
+        ->whereDoesntHave('tests') 
         ->get();
 
     return view('test.create', compact('groupSubjects'));

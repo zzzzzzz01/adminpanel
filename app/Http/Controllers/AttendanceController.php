@@ -386,7 +386,6 @@ class AttendanceController extends Controller
 
         $search = $request->input('search');
     
-        // Agar qidiruv maydoni bo‘sh bo‘lsa — guruh fanlar sahifasiga qaytadi
         if (empty($search)) {
             return redirect()->route('attendanceAdmin.index');
         }
@@ -402,14 +401,13 @@ class AttendanceController extends Controller
     {
         $search = $request->input('search');
 
-        // Guruhga tegishli groupSubjectlarni subject nomi bo‘yicha qidirish
         $groupSubjects = $group->groupSubjects()
             ->whereHas('subject', function ($query) use ($search) {
                 if (!empty($search)) {
                     $query->where('name_uz', 'like', "%{$search}%");
                 }
             })
-            ->with('subject') // subject ma'lumotlarini birga yuklash
+            ->with('subject')
             ->get();
 
         return view('attendance.admin.group', compact('group', 'groupSubjects', 'search'));

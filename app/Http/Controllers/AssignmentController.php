@@ -103,12 +103,10 @@ class AssignmentController extends Controller
     {
         $user = auth()->user();
     
-        // Guruh tekshiruvi (xavfsizlik uchun)
         if ($groupSubject->group_id !== $user->group_id) {
             abort(403, 'Sizning guruhingizga tegishli emas!');
         }
     
-        // Shu group_subject ga tegishli va status=1 bo'lgan assignments larni olish
         $assignments = Assignment::where('status', 1)
             ->whereHas('midtermInterval', function($q) use ($groupSubject) {
                 $q->where('group_subject_id', $groupSubject->id);
@@ -125,12 +123,10 @@ class AssignmentController extends Controller
 
         // dd($assignment->id);
 
-        // Agar allaqachon faollashgan bo‘lsa — boshqa o‘chirib bo‘lmaydi
         if ($assignment->status == 1) {
             return redirect()->back()->with('error', 'Bu oraliq allaqachon faollashgan va endi o‘chirib bo‘lmaydi.');
         }
 
-        // Statusni 1 (faol) qilib o‘zgartiramiz
         $assignment->update(['status' => 1]);
 
         return redirect()->back()->with('success', 'Oraliq muvaffaqiyatli faollashtirildi!');
@@ -147,7 +143,6 @@ class AssignmentController extends Controller
             abort(404, 'Bu oraliqqa tegishli groupSubject topilmadi.');
         }
     
-        // Semestr (agar mavjud bo'lsa) dan min va max sanalarni ISO formatda olamiz
         $semester = $groupSubject->semester;
         $min = $max = null;
         if ($semester) {
@@ -210,12 +205,10 @@ class AssignmentController extends Controller
     {
         // dd($assignment->id);
 
-        // shu assignment qaysi guruhga tegishli
         $group = $assignment->midtermInterval->groupSubject->group;
 
         // dd($group);
 
-        // shu guruhdagi talabalar
         $students = $group->students()->with([
             'submissions' => function ($q) use ($assignment) {
                 $q->where('assignment_id', $assignment->id);

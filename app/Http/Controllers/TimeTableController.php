@@ -13,13 +13,11 @@ class TimeTableController extends Controller
     {
         $user = auth()->user();
         
-        // Agar foydalanuvchi admin bo'lmasa va group_id null bo'lsa
         $isAdmin = $user->roles->contains('id', 1);
         if (!$isAdmin && !$user->group_id) {
             abort(404, 'Group not found for this user');
         }
     
-        // Admin bo'lsa berilgan groupId, oddiy foydalanuvchi bo'lsa o'zining group_id sini ishlatamiz
         $effectiveGroupId = $isAdmin ? $groupId : $user->group_id;
         
         $group = Group::findOrFail($effectiveGroupId);

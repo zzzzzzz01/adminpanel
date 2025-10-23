@@ -18,7 +18,6 @@ class ResultController extends Controller
         return view('results.index', compact('results'));
     }
 
-        // Test tugagandan keyin natijani saqlash
         public function store(Request $request)
         {
             $student = auth()->user();

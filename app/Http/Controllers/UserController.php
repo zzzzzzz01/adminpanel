@@ -20,10 +20,8 @@ class UserController extends Controller
 
     public function show($id)
     {
-        // group_id orqali usersni olish
         $group = Group::findOrFail($id);
 
-        // Masalan: shu groupga tegishli userlarni olish
         $users = User::where('group_id', $id)->get();
 
         return view('groups.show', compact('users', 'group'));
@@ -32,16 +30,13 @@ class UserController extends Controller
     public function groupStudents($groupId)
     {
     
-        // 2. Guruh mavjudligini tekshiramiz
         $group = Group::find($groupId);
         if (!$group) {
             abort(404, 'Group not found');
         }
     
-        // 3. Shu guruhga tegishli barcha userlarni olamiz
         $users = User::where('group_id', $groupId)->get();
     
-        // 4. Viewga uzatamiz
         return view('students.index', compact('users', 'group'));
     }
 
@@ -55,7 +50,7 @@ class UserController extends Controller
     
 
         $users = User::whereHas('roles', function ($query) {
-            $query->where('roles.id', 3); // roles jadvalidagi ID 3 bo'lishi kerak (teacher)
+            $query->where('roles.id', 3); 
         })
         ->where(function ($query) use ($data) {
             $query->where('name', 'like', '%' . $data . '%')

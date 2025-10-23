@@ -29,10 +29,6 @@ class GroupController extends Controller
             $query->where('academic_year', $request->academic_year);
         }
     
-        // if ($request->filled('semester_number')) {
-        //     $query->where('current_semester_number', $request->semester_number);
-        // }
-    
         if ($request->filled('group_name')) {
             $query->where('group_name', 'like', '%' . $request->group_name . '%');
         }
@@ -109,10 +105,10 @@ class GroupController extends Controller
         // Yangi funksiya — semestrlarni yaratish
         $this->generateSemesters($group, $request);
 
-        // Eski funksiya — haftalarni yaratish (sening mavjud logikang)
+        // Yangi funksiya — haftalarni yaratish (sening mavjud logikang)
         $this->generateWeeks($group, $request);
 
-         // ✅ Endi hozirgi sanaga qarab semestrni aniqlaymiz
+         //  Endi hozirgi sanaga qarab semestrni aniqlaymiz
         $currentWeek = Week::where('group_id', $group->id)
         ->whereDate('start_date', '<=', now())
         ->whereDate('end_date', '>=', now())
@@ -211,12 +207,12 @@ class GroupController extends Controller
     
             // Shu semestrni bazadan topamiz (semester_number bo‘yicha)
             $semester = Semester::where('semester_number', $semesterForWeek)
-                ->where('group_id', $group->id) // faqat shu guruh uchun
+                ->where('group_id', $group->id)
                 ->firstOrFail();
     
             Week::create([
                 'group_id'      => $group->id,
-                'semester_id'   => $semester->id,   // ✅ endi semester_id saqlanadi
+                'semester_id'   => $semester->id,
                 'week_number'   => $weekNumber,
                 'start_date'    => $weekStart->toDateString(),
                 'end_date'      => $weekEnd->toDateString(),
@@ -237,13 +233,13 @@ class GroupController extends Controller
         for ($i = 1; $i <= $request->total_semesters; $i++) {
             $courseYearOffset = floor(($i - 1) / 2);
     
-            // Odd semestr: fall, even semestr: spring
+            // Toq semestr: kuz, Juft semestr: bahor
             if ($i % 2 != 0) { // odd, fall
                 $start_date = \Carbon\Carbon::parse($request->fall_start_date)
                                 ->addYears($courseYearOffset);
                 $end_date = \Carbon\Carbon::parse($request->fall_end_date)
                                 ->addYears($courseYearOffset);
-            } else { // even, spring
+            } else { // yoki, bahor
                 $start_date = \Carbon\Carbon::parse($request->spring_start_date)
                                 ->addYears($courseYearOffset);
                 $end_date = \Carbon\Carbon::parse($request->spring_end_date)
@@ -309,7 +305,6 @@ class GroupController extends Controller
         $group = Group::findOrFail($groupId);
         $search = $request->input('search');
 
-        // Agar qidiruv yozilgan bo‘lsa, filtering
         $users = User::where('group_id', $groupId)
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
@@ -337,12 +332,10 @@ class GroupController extends Controller
     {
         $search = $request->input('search');
     
-        // Agar qidiruv bo‘sh bo‘lsa — orqaga qaytar
         if (empty($search)) {
             return redirect()->route('groups.index');
         }
     
-        // Eloquent bilan academicYear munosabatini yuklaymiz
         $groups = Group::with('academicYear')
             ->when($search, function ($query, $search) {
                 $query->where('group_name', 'like', "%{$search}%")
@@ -351,7 +344,6 @@ class GroupController extends Controller
             ->orderBy('group_name')
             ->get();
     
-        // Qidiruvdagi so‘zni highlight qilish uchun (optional)
         $highlight = $search;
     
         return view('groups.index', compact('groups', 'highlight'));

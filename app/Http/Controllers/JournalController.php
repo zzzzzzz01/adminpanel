@@ -16,7 +16,6 @@ class JournalController extends Controller
     {
 
         // dd($request);
-        // Checkbox orqali keladigan group_subject id larini olamiz
         $request->validate([
             'group_subject_id' => 'required|exists:group_subjects,id',
         ]);
@@ -25,7 +24,6 @@ class JournalController extends Controller
 
         // dd($gsId);
 
-        // Agar shu group_subject uchun journal bo‘lmasa, yaratamiz
         $exists = Journal::where('group_subject_id', $gsId)->exists();
 
         if (! $exists) {
@@ -47,7 +45,6 @@ class JournalController extends Controller
 
     public function adminJournalGroupSubject(Group $group)
     {
-        // Guruhga tegishli group_subject lar
         $groupSubjects = GroupSubject::with('subject', 'teacher')
             ->where('group_id', $group->id)
             ->get();
@@ -57,10 +54,8 @@ class JournalController extends Controller
 
     public function adminGroupJurnalsIndex(Group $group, GroupSubject $groupSubject)
     {
-        // groupSubject dan semester_id ni olamiz (agar mavjud bo‘lsa)
         $semesterId = $groupSubject->semester_id ?? null;
     
-        // Faqat shu groupSubject va shu semestrga tegishli schedulelarni olish
         $schedules = Schedule::where('group_subject_id', $groupSubject->id)
             ->when($semesterId, function ($query, $semesterId) {
                 $query->where('semester_id', $semesterId);
@@ -68,7 +63,6 @@ class JournalController extends Controller
             ->orderBy('date')
             ->get();
     
-        // Shu guruhdagi talabalar
         $students = $group->students;
     
         return view('admins.journal.groupJurnals', compact('group', 'groupSubject', 'schedules', 'students'));
@@ -113,10 +107,8 @@ class JournalController extends Controller
                     $q->where('group_subject_id', $schedule->group_subject_id);
                 })->sum('score');
 
-                // Studentni olib kelish
                 $student = User::find($studentId);
     
-            // Agar yangi baho bilan maksimaldan oshsa → oldini olish
             if (($currentTotal + $score) > $maxCurrent) {
                 return redirect()->back()->with('storeError', 
                     "Talaba {$student->name}ning umumiy joriy balli  maksimal ({$maxCurrent}) ball dan oshmoqda!"
@@ -143,7 +135,6 @@ class JournalController extends Controller
     {
         $search = $request->input('search');
     
-        // Agar qidiruv maydoni bo‘sh bo‘lsa — guruh fanlar sahifasiga qaytadi
         if (empty($search)) {
             return redirect()->route('adminJournal.index');
         }
@@ -160,7 +151,6 @@ class JournalController extends Controller
     {
         $search = $request->input('search');
 
-        // Guruhga tegishli groupSubjectlarni subject nomi bo‘yicha qidirish
         $groupSubjects = $group->groupSubjects()
             ->whereHas('subject', function ($query) use ($search) {
                 if (!empty($search)) {

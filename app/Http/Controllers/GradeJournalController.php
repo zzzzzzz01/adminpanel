@@ -15,20 +15,12 @@ use Illuminate\Http\Request;
 class GradeJournalController extends Controller
 {
 
-    // public function index()
-    // {
-    //     // hozircha oddiy variant
-    //     $groups = Group::with('subjects')->get();
-    //     return view('teachers.journals.index', compact('groups'));
-    // }
-
     public function index()
     {
-        $teacherId = auth()->id(); // joriy ustozning id
+        $teacherId = auth()->id(); 
         $today = now()->toDateString(); 
 
-        // Faqat shu ustozga biriktirilgan group_subjectlar bo‘yicha jurnalni olish
-        $journals = \App\Models\Journal::with(['groupSubject.subject', 'groupSubject.group'])
+        $journals = Journal::with(['groupSubject.subject', 'groupSubject.group'])
             ->whereHas('groupSubject', function($query) use ($teacherId, $today) {
                 $query->where('teacher_id', $teacherId)
                 ->whereHas('semester', function ($semester) use ($today) {
@@ -43,10 +35,9 @@ class GradeJournalController extends Controller
 
     public function alljournals()
     {
-        $teacherId = auth()->id(); // joriy ustozning id
+        $teacherId = auth()->id(); 
 
-        // Faqat shu ustozga biriktirilgan group_subjectlar bo‘yicha jurnalni olish
-        $journals = \App\Models\Journal::with(['groupSubject.subject', 'groupSubject.group'])
+        $journals = Journal::with(['groupSubject.subject', 'groupSubject.group'])
             ->whereHas('groupSubject', function($query) use ($teacherId) {
                 $query->where('teacher_id', $teacherId);
             })
@@ -59,7 +50,6 @@ class GradeJournalController extends Controller
     {
         $teacherId = auth()->id();
     
-        // Shu guruh va fan uchun o'qituvchi tomonidan belgilangan darslar
         $schedules = $group->schedules()
             ->whereHas('groupSubject', function($query) use ($subject, $teacherId) {
                 $query->where('subject_id', $subject->id)
@@ -68,7 +58,6 @@ class GradeJournalController extends Controller
             ->with(['groupSubject.subject'])
             ->paginate(10);
     
-        // Faqat student roli bo'lgan userlarni olish
         $students = $group->students;
     
         return view('teachers.journals.show', compact('group', 'subject', 'schedules', 'students'));
@@ -78,7 +67,6 @@ class GradeJournalController extends Controller
     public function showGrades(Schedule $schedule)
     {
         $students = $schedule->groupSubject->group->students->map(function($student) use ($schedule) {
-            // Shu fan va guruhdagi barcha darslar bo‘yicha joriy baholarni yig‘ish
             $totalCurrent = Grade::where('student_id', $student->id)
                 ->where('type', 'current')
                 ->whereHas('schedule', function($q) use ($schedule) {
@@ -140,7 +128,6 @@ class GradeJournalController extends Controller
     // Baholash sahifasini ochish
     public function create(Group $group, Schedule $schedule)
     {
-        // Guruhdagi barcha talabalar
         $students = $group->students;
     
         // O‘sha dars jadvaliga tegishli mavjud baholar (agar bo‘lsa)
@@ -182,7 +169,7 @@ class GradeJournalController extends Controller
 
     public function teacherGrades()
     {
-        $teacherId = auth()->id(); // Hozirgi kirgan o‘qituvchi ID
+        $teacherId = auth()->id(); 
 
         // dd($teacherId);
     
@@ -206,17 +193,14 @@ class GradeJournalController extends Controller
     {
         $teacherId = auth()->id();
     
-        // Shu guruhdagi o‘qituvchiga tegishli darslar
         $schedules = $group->schedules()
             ->where('teacher_id', $teacherId)
             ->with(['subject', 'gradeJournals.student'])
             ->orderBy('date', 'asc')
             ->get();
     
-        // Guruhdagi talabalar
         $students = $group->students;
     
-        // Faqat sanalar (header uchun)
         $dates = $schedules->pluck('date')->unique();
     
         return view('teachers.group-grades', compact('group', 'schedules', 'students', 'dates'));
@@ -227,7 +211,6 @@ class GradeJournalController extends Controller
         $search = trim($request->input('search'));
         $teacherId = auth()->id();
     
-        // Agar qidiruv bo'sh bo‘lsa — orqaga qaytadi
         if (empty($search)) {
             return redirect()->route('all.journals');
         }

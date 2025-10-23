@@ -89,7 +89,7 @@ class LessonPairController extends Controller
             $lessonPair->end_time = $request->end_time;
         }
     
-        // Yangilash
+        
         $lessonPair->save();
     
         return redirect()->route('lessonPairs.index')

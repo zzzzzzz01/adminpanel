@@ -78,7 +78,7 @@ class MidtermIntervalController extends Controller
                 $q->whereDate('start_date', '<=', $today)
                   ->whereDate('end_date', '>=', $today);
             })
-            ->whereDoesntHave('midtermIntervals')       // hali midterm yaratilmagan
+            ->whereDoesntHave('midtermIntervals')       // hali yaratilmagan midterm 
             ->get();
 
             
@@ -108,10 +108,8 @@ class MidtermIntervalController extends Controller
 
     public function manual(MidtermInterval $midterm)
     {
-        // Shu intervalga tegishli guruh-fan
         $groupSubject = $midterm->groupSubject;
 
-        // Guruhdagi talabalar
         $students = $groupSubject->group->students;
 
         // Oldingi manual baholarni olish
@@ -150,7 +148,6 @@ class MidtermIntervalController extends Controller
     {
 
         // dd($midterm->all());
-        // shu guruhga vazifalar sahifasi
         return view('midterms.assignment.index', compact('midterm'));
     }
 
@@ -159,12 +156,10 @@ class MidtermIntervalController extends Controller
 
         // dd($midterm->id);
 
-        // Agar allaqachon faollashgan bo‘lsa — boshqa o‘chirib bo‘lmaydi
         if ($midterm->status == 1) {
             return redirect()->back()->with('error', 'Bu oraliq allaqachon faollashgan va endi o‘chirib bo‘lmaydi.');
         }
 
-        // Statusni 1 (faol) qilib o‘zgartiramiz
         $midterm->update(['status' => 1]);
 
         return redirect()->back()->with('success', 'Oraliq muvaffaqiyatli faollashtirildi!');
@@ -181,7 +176,6 @@ class MidtermIntervalController extends Controller
 
     public function adminGroupMidterm(Group $group)
     {
-        // Guruhga tegishli group_subject lar
         $groupSubjects = GroupSubject::with(['subject', 'teacher', 'midtermIntervals'])
             ->where('group_id', $group->id)
             ->get();
@@ -191,13 +185,10 @@ class MidtermIntervalController extends Controller
 
     public function adminManual(Group $group, MidtermInterval $midterm)
     {
-        // Shu intervalga tegishli guruh-fan
         $groupSubject = $midterm->groupSubject;
 
-        // Guruhdagi talabalar
         $students = $groupSubject->group->students;
 
-        // Oldingi manual baholarni olish
         $grades = MidtermManualGrade::where('midterm_interval_id', $midterm->id)->get()
             ->keyBy('student_id');
 
@@ -208,7 +199,6 @@ class MidtermIntervalController extends Controller
     {
         $search = $request->input('search');
     
-        // Agar qidiruv maydoni bo‘sh bo‘lsa — guruh fanlar sahifasiga qaytadi
         if (empty($search)) {
             return redirect()->route('admin.midterms.index');
         }
@@ -260,7 +250,6 @@ class MidtermIntervalController extends Controller
     {
 
         // dd($midterm->all());
-        // shu guruhga vazifalar sahifasi
         return view('admins.midterms.assignment.index', compact('group', 'midterm'));
     }
     

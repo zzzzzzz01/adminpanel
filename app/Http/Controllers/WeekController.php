@@ -47,7 +47,7 @@ class WeekController extends Controller
     public function toggleActive($id)
     {
         $week = Week::findOrFail($id);
-        $week->is_active = !$week->is_active; // true ↔ false
+        $week->is_active = !$week->is_active;
         $week->save();
 
         return back()->with('success', 'Hafta holati o‘zgartirildi.');

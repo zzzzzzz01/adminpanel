@@ -21,7 +21,6 @@ class GroupSubjectController extends Controller
 
         // dd($semesters);
     
-        // yangi qo'shish formasi uchun subject umuman berilmaydi
         return view('groups.groupSubject.index', compact('group', 'subjects', 'teachers', 'semesters'));
     }
 
@@ -102,7 +101,7 @@ class GroupSubjectController extends Controller
             ]];
         });
     
-        // Bu yerda aynan tahrirlanayotgan subjectni alohida o‘zgartiramiz
+        // Bu yerda aynan ozgartirilayotkan subjectni alohida o‘zgartiramiz
         $editingSubject = $group->subjects()->findOrFail($subject->id);
     
         return view('groups.groupSubject.index', compact(
@@ -111,7 +110,7 @@ class GroupSubjectController extends Controller
             'subjects',
             'teachers', 
             'assignedSubjects',
-            'editingSubject'  // Blade faylda shu o‘zgaruvchini ishlatamiz
+            'editingSubject'  
         ));
     }
 
@@ -122,7 +121,6 @@ class GroupSubjectController extends Controller
         // Guruh va fan o‘rtasidagi pivot (biriktirish)ni o‘chirish
         $group->subjects()->detach($subject->id);
     
-        // Orqaga qaytib, xabar bilan redirect qilish
         return redirect()->route('groupSubject.index', $group->id)
                      ->with('success', 'Fan guruhdan muvaffaqiyatli o‘chirildi.');
     }
@@ -131,12 +129,10 @@ class GroupSubjectController extends Controller
     {
         $search = $request->input('search');
     
-        // Agar qidiruv maydoni bo‘sh bo‘lsa — guruh fanlar sahifasiga qaytadi
         if (empty($search)) {
             return redirect()->route('groupSubject.index', $group->id);
         }
     
-        // Fanlarni qidirish
         $subjects = $group->subjects()
             ->where(function ($query) use ($search) {
                 $query->where('name_uz', 'like', "%{$search}%")
@@ -145,12 +141,10 @@ class GroupSubjectController extends Controller
             })
             ->get();
     
-        // O‘qituvchilarni olish
         $teachers = User::whereHas('roles', function ($query) {
             $query->where('roles.id', 3); // 3 — o‘qituvchi roli
         })->get();
     
-        // Natijalarni qaytarish
         return view('groups.groupSubject.index', [
             'group' => $group,
             'subjects' => $subjects,

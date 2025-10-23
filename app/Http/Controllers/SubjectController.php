@@ -102,7 +102,6 @@ class SubjectController extends Controller
     {
         $search = trim($request->input('search'));
 
-        // Agar qidiruv maydoni bo‘sh bo‘lsa — guruh fanlar sahifasiga qaytadi
         if (empty($search)) {
             return redirect()->route('subject.index');
         }

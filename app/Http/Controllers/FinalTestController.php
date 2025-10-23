@@ -76,12 +76,10 @@ class FinalTestController extends Controller
 
         // dd($midterm->id);
 
-        // Agar allaqachon faollashgan bo‘lsa — boshqa o‘chirib bo‘lmaydi
         if ($test->is_active == 1) {
             return redirect()->back()->with('error', 'Bu oraliq allaqachon faollashgan va endi o‘chirib bo‘lmaydi.');
         }
 
-        // Statusni 1 (faol) qilib o‘zgartiramiz
         $test->update(['is_active' => 1]);
 
         return redirect()->back()->with('success', 'Oraliq muvaffaqiyatli faollashtirildi!');
@@ -112,18 +110,16 @@ class FinalTestController extends Controller
 
     public function show(Test $test)
     {
-        // Test bilan birga savollar va variantlarni yuklaymiz
+        // Test bilan birga savollar va variantlarni yuklash
         $test->load('questions.options');
     
-        // Savollarni ajratib olish
+        
         $questions = $test->questions;
     
-        // Qo‘shimcha ma’lumotlar (agar view’da ishlatilsa)
         $questionsCount = $questions->count();
         $timeLimit = $test->time_limit;
         $status = $test->is_active ? 'Faol' : 'Nofaol';
     
-        // Hammasini viewga uzatamiz
         return view('test.show', compact(
             'test',
             'questions',
@@ -231,13 +227,11 @@ class FinalTestController extends Controller
         // dd($questions);
     
         foreach ($questions as $q) {
-            // Savolni saqlash
             $question = Question::create([
                 'test_id'  => $test->id,
                 'question' => $q['question'],
             ]);
     
-            // Variantlarni saqlash
             foreach ($q['options'] as $opt) {
                 Option::create([
                     'question_id' => $question->id,
@@ -253,10 +247,8 @@ class FinalTestController extends Controller
 
     public function edit(Test $test, Question $question)
     {
-        // Savol variantlari bilan birga
         $question->load('options');
     
-        // Format qilib chiqaramiz
         $formatted = $question->question . "\n";
         foreach ($question->options as $opt) {
             $formatted .= "======\n";
@@ -280,12 +272,11 @@ class FinalTestController extends Controller
 
         // dd($request->all(), $test->id, $question->question);
 
-        // 1. Textarea dan kelgan matn (savol + variantlar)
         $content = $request->input('question_content');
 
         // dd(['content' => $content]);
     
-        // 2. Matnni satrlarga bo‘lish
+        // Matnni satrlarga bo‘lish
         $lines = array_values(array_filter(array_map('trim', explode("\n", $content))));
 
         // dd(['lines' => $lines]);
@@ -294,22 +285,19 @@ class FinalTestController extends Controller
             return back()->with('error', 'Savol va variantlar to‘liq kiritilmagan!');
         }
     
-        // 3. 1-satr – savol matni
+        // 1-satr – savol matni
         $questionText = $lines[0];
         // dd(['question_text' => $questionText]);
     
-        // 4. Savolni yangilash
         $question->update([
             'question' => $questionText,
         ]);
         // dd(['updated_question' => $question]);
 
     
-        // 5. Eski variantlarni o‘chirish
         $question->options()->delete();
         // dd(['after_delete_options' => $question->options()->get()]);
     
-        // 6. Yangi variantlarni qo‘shish
         foreach ($lines as $line) {
             if ($line === "======" || $line === $questionText || $line === "++++++") {
                 continue;
@@ -334,10 +322,8 @@ class FinalTestController extends Controller
 
     public function destroy(Test $test, Question $question)
     {
-        // Avval variantlarni o‘chiramiz
         $question->options()->delete();
 
-        // Keyin savolni o‘chiramiz
         $question->delete();
 
         return redirect()

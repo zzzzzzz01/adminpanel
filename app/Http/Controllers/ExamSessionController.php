@@ -55,7 +55,7 @@ class ExamSessionController extends Controller
         // Hali model yo‘q, lekin biz pluck uchun DB kerak emas:
         $usedTestIds = collect(\DB::table('exam_session_test')->pluck('test_id'));
     
-        $tests = \App\Models\Test::where('is_active', 1)
+        $tests = Test::where('is_active', 1)
             ->whereNotIn('id', $usedTestIds)
             ->get();
     
@@ -66,21 +66,21 @@ class ExamSessionController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'test_id'   => 'required|array|min:1',   // massiv bo‘lishi shart
+            'test_id'   => 'required|array|min:1',   
             'test_id.*' => 'integer|exists:tests,id',
             'start_time' => 'required|date',
             'end_time'   => 'required|date|after:start_time',
             'room'       => 'nullable|string|max:255',
         ]);
     
-        // 1. Avval exam_session yaratamiz
+        
         $examSession = ExamSession::create([
             'start_time' => $data['start_time'],
             'end_time'   => $data['end_time'],
             'room'       => $data['room'] ?? null,
         ]);
     
-        // 2. Pivot jadvalga testlarni biriktiramiz
+        
         $testIds = array_map('intval', array_unique($data['test_id']));
         $examSession->tests()->attach($testIds);
     
@@ -90,13 +90,10 @@ class ExamSessionController extends Controller
 
     public function startTest(Test $test)
     {
-        // Studentni olish
         $student = auth()->user();
     
-        // Testni olish (savollar va variantlari bilan)
         $test->load('questions.options');
     
-        // Tasodifiy 25 ta savolni olish
         $questions = $test->questions->shuffle()->take(25);
 
         // dd($questions->toArray());
@@ -110,7 +107,7 @@ class ExamSessionController extends Controller
 
     public function answerStore(Request $request)
     {
-        // dd($request->all()); // Qanday ma'lumot kelayotganini ko'ramiz
+        // dd($request->all()); 
     
         $request->validate([
             'test_id' => 'required|exists:tests,id',
@@ -163,7 +160,7 @@ class ExamSessionController extends Controller
             ->count();
         
         // Ballarni hisoblash
-        $maxScore = $test->groupSubject->max_final_score ?? 50; // default 50
+        $maxScore = $test->groupSubject->max_final_score ?? 50; 
         $earnedScore = 0;
         
         if ($totalQuestions > 0) {
@@ -193,27 +190,9 @@ class ExamSessionController extends Controller
             'max_score_' . $testId      => $maxScore
         ]);
 
-        // ✅ Natija sahifasiga yo‘naltiramiz
         return redirect()->route('results.show', $result->id)
             ->with('success', 'Test yakunlandi!');
     }
-
-    // Natijani sessionga saqlash
-//     session([
-//         'test_score_' . $testId => $earnedScore,
-//         'correct_answers_' . $testId => $correctAnswers,
-//         'total_questions_' . $testId => $totalQuestions,
-//         'max_score_' . $testId => $maxScore
-//     ]);
-
-//     return back()->with([
-//         'success' => 'Javoblar saqlandi!',
-//         'earned_score' => $earnedScore,
-//         'correct_answers' => $correctAnswers,
-//         'total_questions' => $totalQuestions,
-//         'max_score' => $maxScore
-//     ]);
-// }
 
     // Test yakunlash va natija ko‘rish
     public function finish($testId)
@@ -293,19 +272,13 @@ class ExamSessionController extends Controller
     
     public function search(Request $request)
     {
-        // Obyektni tayyorlash (yozilgan relationship'larni moslang)
         $query = ExamSession::with(['tests.groupSubject.group', 'tests.groupSubject.subject']);
 
         // Agar from/to to'ldirilgan bo'lsa, Carbon bilan bosh/oxir vaqtlarini aniqlaymiz
         if ($request->filled('from_date') && $request->filled('to_date')) {
-            // from va to maydonlari faqat sana bo'lishi mumkin (date) yoki datetime bo'lsa moslashtiring
             $from = \Carbon\Carbon::parse($request->from_date)->startOfDay();
             $to   = \Carbon\Carbon::parse($request->to_date)->endOfDay();
 
-            // Biz shu oraliq bilan **kesishuvchi** sessiyalarni olamiz:
-            // 1) start_time oraliqqa tushadi
-            // 2) yoki end_time oraliqqa tushadi
-            // 3) yoki sessiya butunlay oraliqni qamrab oladi
             $query->where(function ($q) use ($from, $to) {
                 $q->whereBetween('start_time', [$from, $to])
                   ->orWhereBetween('end_time', [$from, $to])
@@ -316,13 +289,11 @@ class ExamSessionController extends Controller
             });
         }
 
-        // Saralab olib, guruhlab view ga yuboramiz (sana bo'yicha guruhlash)
         $sessions = $query->orderBy('start_time', 'asc')->get()
             ->groupBy(function ($item) {
                 return \Carbon\Carbon::parse($item->start_time)->toDateString();
             });
 
-        // Viewga sessions uzatamiz — shu nom bilan view-da ishlating
         return view('examSession.all-sessions', compact('sessions'));
     }
     
