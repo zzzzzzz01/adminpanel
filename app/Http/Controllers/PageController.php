@@ -21,6 +21,10 @@ use App\Models\MidtermGrade;
 use App\Models\MidtermManualGrade; 
 use App\Models\Assignment;
 use App\Models\GroupSubject;
+use App\Models\AcademicYear;
+use App\Models\LessonPair;
+use App\Models\Auditorium;
+use App\Models\Faculty;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;  
@@ -34,6 +38,13 @@ class PageController extends Controller
         $groups = Group::all();
         $subjects = Subject::all();
         $exams = Exam::all();
+        $academicYears = AcademicYear::all();
+        $lastAcademicYear = $academicYears->last();
+        $lessonPairs = LessonPair::all();
+        $auditoriums = Auditorium::all();
+        $facultys = Faculty::all();
+        $programs = Program::all();
+
 
         if (!auth()->check()) {
             return redirect()->route('login');
@@ -54,7 +65,8 @@ class PageController extends Controller
             $query->where('group_id', $groupId);
         })->count();
          
-        return view('index', compact('groups', 'users', 'subjects', 'exams', 'teacherCount', 'examCount', 'adminCount', 'posts'));
+        return view('index', compact('groups', 'users', 'subjects', 'exams', 'teacherCount',
+         'examCount', 'adminCount', 'posts', 'lastAcademicYear', 'lessonPairs', 'auditoriums', 'facultys', 'programs'));
     }
 
     public function allAdmins(){

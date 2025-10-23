@@ -6,16 +6,16 @@
 </x-slot:title>
 
 <div class="container">
-@if(!auth()->user()->hasRole('admin'))
-  <div class="title-wrapper pt-30">
-    <div class="row align-items-center">
-      <div class="col-md-6">
-        <div class="title">
-            <h2> @lang('words.lesson') </h2>
+  @if(!auth()->user()->hasRole('admin'))
+    <div class="title-wrapper pt-30">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <div class="title">
+              <h2> @lang('words.lesson') </h2>
+          </div>
         </div>
       </div>
     </div>
-  </div>
       <div class="row">
       @if(auth()->user()->hasRole('student'))
         <div class="col-xl-3 col-lg-4 col-sm-6">
@@ -105,7 +105,7 @@
         <div class="row align-items-center">
           <div class="col-md-6">
             <div class="title">
-            <h2> @lang('words.for.admin') </h2>
+            <h2> Admin Bo'limi </h2>
            </div>
          </div>
        </div>
@@ -157,16 +157,150 @@
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="title-wrapper pt-30">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <div class="title">
+            <h2> O‘qish jarayoni </h2>
+           </div>
+         </div>
+       </div>
+     </div>
+    
+    <!-- ========== section start ========== -->
+    <div class="row">
       <div class="col-xl-3 col-lg-4 col-sm-6">
         <div class="icon-card mb-30">
-          <div class="icon danger">
-          <i class="fa-solid fa-hexagon-nodes"></i>
+          <div class="icon orange">
+            <i class="fa-solid fa-calendar"></i>
           </div>
           <div class="content">
-            <h6 class="mb-10"><a href="{{ route('exams.index') }}"> Imtihonlar ro'yhati </a></h6>
-            <h3 class="text-bold mb-10"> {{ $exams->count() }}  </h3>
+              <h6 class="mb-10">
+                  <a href="{{ route('schedule.index') }}">@lang('words.manage.schedule')</a>
+              </h6>
+
+              <h3 class="text-bold text-success mb-10">
+                  @php
+
+                      $locale = app()->getLocale();
+                      $dayName = Carbon\Carbon::today()->locale($locale)->translatedFormat('l');
+
+                      // O'zbekcha lotin yozuvidagi kunlar
+                      $uzDays = [
+                          'dushanba' => 'Dushanba',
+                          'сешанба' => 'Seshanba',
+                          'seshanba' => 'Seshanba',
+                          'чоршанба' => 'Chorshanba',
+                          'chorshanba' => 'Chorshanba',
+                          'пайшанба' => 'Payshanba',
+                          'payshanba' => 'Payshanba',
+                          'жума' => 'Juma',
+                          'juma' => 'Juma',
+                          'шанба' => 'Shanba',
+                          'shanba' => 'Shanba',
+                          'якшанба' => 'Yakshanba',
+                          'yakshanba' => 'Yakshanba',
+                      ];
+
+                      if ($locale === 'uz') {
+                          $dayName = mb_strtolower($dayName, 'UTF-8'); // kichik harflarga
+                          $dayName = $uzDays[$dayName] ?? ucfirst($dayName);
+                      } elseif ($locale === 'ru') {
+                          $dayName = ucfirst($dayName); // ruscha birinchi harf katta
+                      } else {
+                          $dayName = ucfirst($dayName); // inglizcha
+                      }
+                  @endphp
+
+                  {{ $dayName }}
+              </h3>
+
+              <p class="text-sm text-success">
+                  <span class="text-gray"> Bugun </span>
+              </p>
+          </div>
+
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-4 col-sm-6">
+        <div class="icon-card mb-30">
+          <div class="icon purple">
+          <i class="fa-solid fa-clock"></i> 
+          </div>
+          <div class="content">
+            <h6 class="mb-10"><a  href="{{ route('academicYear.index') }}"> O‘quv yili </a></h6> 
+             
+            <h3 class="text-bold mb-10">{{ $lastAcademicYear->name }}</h3>
+             
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-4 col-sm-6">
+        <div class="icon-card mb-30">
+          <div class="icon">
+            <i class="fa-solid fa-clipboard-user"></i>
+          </div>
+          <div class="content">
+            <h6 class="mb-10"><a href="{{ route('attendanceAdmin.index') }}"> Davomat </a></h6>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="title-wrapper pt-30">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <div class="title">
+            <h2> Manitoring </h2>
+           </div>
+         </div>
+       </div>
+     </div>
+    
+    <!-- ========== section start ========== -->
+    <div class="row">
+      <div class="col-xl-3 col-lg-4 col-sm-6">
+        <div class="icon-card mb-30">
+          <div class="icon purple">
+            <i class="fa-solid fa-clock"></i>
+          </div>
+          <div class="content">
+            <h6 class="mb-10"><a href="{{ route('lessonPairs.index') }}"> Juftliklar </a></h6>
+            <h3 class="text-bold mb-10">{{ $lessonPairs->count() }}</h3>
+            <p class="text-sm text-success">
+              <span class="text-gray"> Juftliklar soni </span>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-4 col-sm-6">
+        <div class="icon-card mb-30">
+          <div class="icon primary">
+          <i class="fa-solid fa-table-list"></i>
+          </div>
+          <div class="content">
+            <h6 class="mb-10"><a  href="{{ route('auditoriums.index') }}"> Auditoriya </a></h6> 
+             
+            <h3 class="text-bold mb-10">{{ $auditoriums->count() }}</h3>
+             
+            <p class="text-sm text-success">
+              <span class="text-gray"> Auditoriyalar soni </span>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-4 col-sm-6">
+        <div class="icon-card mb-30">
+          <div class="icon orange">
+          <i class="fa-solid fa-building-circle-check"></i>
+          </div>
+          <div class="content">
+            <h6 class="mb-10"><a href="{{ route('facultys.index') }}"> Fakultetlar </a></h6>
+            <h3 class="text-bold mb-10">{{ $facultys->count() }}</h3>
             <p class="text-sm text-danger">
-              <span class="text-gray"> Imtihonlar soni </span>
+              <span class="text-gray"> Fakultetlar soni </span>
             </p>
           </div>
         </div>
@@ -174,10 +308,63 @@
       <div class="col-xl-3 col-lg-4 col-sm-6">
         <div class="icon-card mb-30">
           <div class="icon success">
-            <i class="fa-solid fa-sliders"></i>
+          <i class="fa-solid fa-building-flag"></i>
           </div>
           <div class="content">
-            <h6 class="mb-10"><a href="{{ route('schedule.index') }}"> @lang('words.manage.schedule') </a></h6>
+            <h6 class="mb-10"><a href="{{ route('programs.index') }}"> Yo'nalishlar </a></h6>
+            <h3 class="text-bold mb-10">{{ $programs->count() }}</h3>
+            <p class="text-sm text-danger">
+              <span class="text-gray"> Yo'nalishlar soni </span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="title-wrapper pt-30">
+        <div class="row align-items-center">
+          <div class="col-md-6">
+            <div class="title">
+            <h2> Nazoratlar </h2>
+           </div>
+         </div>
+       </div>
+     </div>
+    
+    <!-- ========== section start ========== -->
+    <div class="row">
+      <div class="col-xl-3 col-lg-4 col-sm-6">
+        <div class="icon-card mb-30">
+          <div class="icon orange">
+            <i class="fa-solid fa-calendar"></i>
+          </div>
+          <div class="content">
+              <h6 class="mb-10">
+                  <a href="{{ route('admin.midterms.index') }}">Oraliq nazoratlar</a>
+              </h6>
+          </div>
+
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-4 col-sm-6">
+        <div class="icon-card mb-30">
+          <div class="icon purple">
+            <i class="fa-solid fa-vial-circle-check"></i>
+          </div>
+          <div class="content">
+            <h6 class="mb-10"><a  href="{{ route('examSession.index') }}"> Yakuniy nazoratlar </a></h6> 
+             
+             
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-4 col-sm-6">
+        <div class="icon-card mb-30">
+          <div class="icon">
+            <i class="fa-solid fa-clipboard-user"></i>
+          </div>
+          <div class="content">
+            <h6 class="mb-10"><a href="{{ route('adminJournal.index') }}"> Joriy nazoratlar </a></h6>
           </div>
         </div>
       </div>
@@ -214,6 +401,16 @@
           </div>
           <div class="content">
             <h6 class="mb-10"><a href="{{ route('profil.index') }}"> @lang('words.profile') </a></h6>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-3 col-lg-4 col-sm-6">
+        <div class="icon-card mb-30">
+          <div class="icon orange">
+          <i class="fa-solid fa-user"></i>
+          </div>
+          <div class="content">
+            <h6 class="mb-10"><a href="{{ route('notifications.index') }}"> @lang('words.notification') </a></h6>
           </div>
         </div>
       </div>
