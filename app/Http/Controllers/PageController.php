@@ -64,9 +64,22 @@ class PageController extends Controller
         $examCount = Exam::whereHas('groups', function($query) use ($groupId) {
             $query->where('group_id', $groupId);
         })->count();
+
+        $today = now();
+        $teacherId = auth()->id();
+
+        $groups = Group::whereHas('groupSubjects', function ($q) use ($teacherId, $today) {
+                $q->where('teacher_id', $teacherId)
+                ->whereHas('semester', function ($semester) use ($today) {
+                    $semester->where('start_date', '<=', $today)
+                            ->where('end_date', '>=', $today);
+                });
+            })
+            ->with(['groupSubjects.semester', 'groupSubjects.subject'])
+            ->get();
          
         return view('index', compact('groups', 'users', 'subjects', 'exams', 'teacherCount',
-         'examCount', 'adminCount', 'posts', 'lastAcademicYear', 'lessonPairs', 'auditoriums', 'facultys', 'programs'));
+         'examCount', 'adminCount', 'posts', 'lastAcademicYear', 'lessonPairs', 'auditoriums', 'facultys', 'programs', 'groups'));
     }
 
     public function allAdmins(){
