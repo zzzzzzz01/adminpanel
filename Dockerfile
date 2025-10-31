@@ -1,6 +1,7 @@
 # PHP 8.2 asosida image
 FROM php:8.3-cli
 
+
 # MySQL va boshqa kerakli extensionlarni o‘rnatish
 RUN apt-get update && apt-get install -y \
     git \
