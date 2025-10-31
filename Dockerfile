@@ -1,5 +1,5 @@
 # PHP 8.2 asosida image
-FROM php:8.3-cli
+FROM php:8.1-cli
 
 
 # MySQL va boshqa kerakli extensionlarni o‘rnatish
