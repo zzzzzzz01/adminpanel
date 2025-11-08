@@ -7,7 +7,7 @@
 
 <div class="container">
   @if(auth()->user())
-      <div class="title-wrapper pt-30">
+      <!-- <div class="title-wrapper pt-30">
         <div class="row align-items-center">
           <div class="col-md-6">
             <div class="title">
@@ -15,7 +15,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
       <div class="row">
       @if(auth()->user()->hasRole('student'))
         <div class="col-xl-3 col-lg-4 col-sm-6">
