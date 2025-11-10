@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\View;
 use App\Models\Tag;
 use App\Models\Category;
 use App\Models\Post;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -23,7 +24,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (env('APP_ENV') === 'production') { // localda ishlatmaymiz
+        // Faqat productionda ishlaydi
+        if (app()->environment('production')) {
+
+            // Agar reverse proxy bo‘lsa, foizlash
             URL::forceScheme('https');
         }
     }
