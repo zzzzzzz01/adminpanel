@@ -549,3 +549,15 @@ Route::resources([
     'notifications'=>NotificationController::class,
 ]);
 
+
+Route::get('/lang/{lang}', function ($lang) {
+    $available = ['uz', 'en', 'ru']; // mavjud tillar
+
+    if (in_array($lang, $available)) {
+        session(['lang' => $lang]);
+        app()->setLocale($lang);
+    }
+
+    return redirect()->back();
+})->name('language');
+

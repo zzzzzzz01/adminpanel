@@ -30,5 +30,9 @@ class AppServiceProvider extends ServiceProvider
             // Agar reverse proxy bo‘lsa, foizlash
             URL::forceScheme('https');
         }
+
+        // Sessiyadagi tilni o‘rnatish
+        $locale = session('lang', 'uz');
+        app()->setLocale($locale);
     }
 }
