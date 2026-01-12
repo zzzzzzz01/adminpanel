@@ -13,16 +13,27 @@ class GroupSubjectController extends Controller
 {
     public function index(Group $group)
     {
-        $subjects  = Subject::all();
-        $teachers  = User::whereHas('roles', function ($query) {
-            $query->where('roles.id', 3);
-        })->get();
-        $semesters = $group->semesters;
-
-        // dd($semesters);
+        $groupSubjects = GroupSubject::with([
+            'subject',
+            'teacher',
+            'semester'
+        ])->where('group_id', $group->id)->get();
     
-        return view('groups.groupSubject.index', compact('group', 'subjects', 'teachers', 'semesters'));
+        $subjects  = Subject::all();
+    
+        $teachers = User::whereHas('roles', function ($q) {
+            $q->where('roles.id', 3);
+        })->get();
+        
+    
+        return view('groups.groupSubject.index', compact(
+            'group',
+            'groupSubjects',
+            'subjects',
+            'teachers'
+        ));
     }
+    
 
     public function store(Request $request, Group $group)
     {
