@@ -169,15 +169,7 @@
                                     <td>{{ $gs->teacher->name ?? '-' }}</td>
                                     <td>{{ $gs->semester->name ?? '-' }}</td>
                                     <td>{{ $gs->semester->academic_year ?? '-' }}</td>
-                                    <td>
-                                        <form action="{{ route('groupSubject.createJournal') }}" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="group_subject_id" value="{{ $gs->id }}">
-                                            <input type="checkbox" name="create_journal_{{ $gs->id }}" 
-                                                onchange="this.form.submit()" 
-                                                {{ $gs->has_journal ? 'checked disabled' : '' }}>
-                                        </form>
-                                    </td>
+                                    
                                 </tr>
                                 @endforeach
 
