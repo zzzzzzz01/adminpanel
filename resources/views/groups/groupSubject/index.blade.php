@@ -156,6 +156,37 @@
                                     <th scope="col"></th>
                                 </tr>
                             </thead>
+                            <tbody>
+                                @foreach($groupSubjects as $gs)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
+                                        <a href="{{ route('groupSubject.edit', [$group->id, $gs->subject->id]) }}">
+                                            {{ $gs->subject->name_uz ?? '-' }}
+                                        </a>
+                                    </td>
+                                    <td>{{ $gs->audit_hours }}</td>
+                                    <td>{{ $gs->teacher->name ?? '-' }}</td>
+                                    <td>{{ $gs->semester->name ?? '-' }}</td>
+                                    <td>{{ $gs->semester->academic_year ?? '-' }}</td>
+                                    <td>
+                                        <form action="{{ route('groupSubject.createJournal') }}" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="group_subject_id" value="{{ $gs->id }}">
+                                            <input type="checkbox" name="create_journal_{{ $gs->id }}" 
+                                                onchange="this.form.submit()" 
+                                                {{ $gs->has_journal ? 'checked disabled' : '' }}>
+                                        </form>
+                                    </td>
+                                </tr>
+                                @endforeach
+
+                                @if($groupSubjects->isEmpty())
+                                <tr>
+                                    <td colspan="7" class="text-center">Fanlar mavjud emas</td>
+                                </tr>
+                                @endif
+                            </tbody>
                         </table>
                     </div>
                 </div>

@@ -7,6 +7,7 @@ use App\Models\Subject;
 use App\Models\Group;
 use App\Models\GroupSubject;
 use App\Models\Semester;
+use App\Models\Journal;
 use Illuminate\Http\Request;
 
 class GroupSubjectController extends Controller
@@ -20,14 +21,26 @@ class GroupSubjectController extends Controller
         ])
         ->where('group_id', $group->id)
         ->get();
-
+    
+        // 🔹 Jurnal mavjud bo‘lgan group_subject_id lar
+        $journalIds = Journal::whereIn(
+            'group_subject_id',
+            $groupSubjects->pluck('id')
+        )->pluck('group_subject_id')->toArray();
+    
+        // 🔹 Har bir groupSubject ga has_journal property qo‘shamiz
+        $groupSubjects->transform(function ($gs) use ($journalIds) {
+            $gs->has_journal = in_array($gs->id, $journalIds);
+            return $gs;
+        });
+    
         return view('groups.groupSubject.index', [
             'group'            => $group,
             'groupSubjects'    => $groupSubjects,
             'subjects'         => Subject::all(),
             'teachers'         => User::whereHas('roles', fn ($q) => $q->where('roles.id', 3))->get(),
-
-            // 🔴 view xatoga tushmasligi uchun
+    
+            // view crash bo‘lmasligi uchun
             'semesters'        => Semester::all(),
             'assignedSubjects' => collect(),
             'editingSubject'   => null,
