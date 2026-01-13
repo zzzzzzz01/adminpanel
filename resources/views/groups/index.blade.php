@@ -4,7 +4,7 @@
   Guruxlar
 </x-slot:title>
 
-<style>    
+    <style>    
         .breadcrumb {
             background: white;
             border: 1px solid #dee2e6;
