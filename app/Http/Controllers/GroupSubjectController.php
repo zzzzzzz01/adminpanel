@@ -13,13 +13,10 @@ class GroupSubjectController extends Controller
 {
     public function index(Group $group)
     {
-        $groupSubjects = GroupSubject::with([
-            'subject',
-            'teacher',
-            'semester'
-        ])
-        ->where('group_id', $group->id)
-        ->get();
+        $groupSubjects = GroupSubject::with(['subject'])->get();
+
+
+        // dd($groupSubjects->all());
 
         return view('groups.groupSubject.index', [
             'group'            => $group,

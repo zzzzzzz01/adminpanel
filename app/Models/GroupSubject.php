@@ -29,12 +29,12 @@ class GroupSubject extends Pivot
 
     public function subject()
     {
-        return $this->belongsTo(Subject::class);
+        return $this->belongsTo(Subject::class, 'subject_id');
     }
 
     public function semester()
     {
-        return $this->belongsTo(Semester::class);
+        return $this->belongsTo(Semester::class, 'semester_id');
     }
 
     public function teacher()
