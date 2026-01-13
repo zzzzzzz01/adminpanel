@@ -19,11 +19,7 @@ class GroupSubject extends Pivot
         'subject_id',
         'teacher_id',
         'semester_id',
-        'audit_hours',
-        'max_current_score',
-        'max_midterm_score',
-        'max_final_score',
-        'total_score',
+        'audit_hours', 'max_current_score',  'max_midterm_score', 'max_final_score', 'total_max'
     ];
 
     public function group()

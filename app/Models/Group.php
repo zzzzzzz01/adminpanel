@@ -75,19 +75,12 @@ class Group extends Model
     public function subjects()
     {
         return $this->belongsToMany(Subject::class, 'group_subjects')
-            ->using(GroupSubject::class)
-            ->withPivot([
-                'id',
-                'semester_id',
-                'teacher_id',
-                'audit_hours',
-                'max_current_score',
-                'max_midterm_score',
-                'max_final_score',
-            ])
-            ->withTimestamps();
+                    ->using(\App\Models\GroupSubject::class)
+                    ->withPivot('id', 'semester_id', 'teacher_id', 'audit_hours',)
+                
+                
+                    ->withTimestamps();
     }
-    
 
     public function groupSubjects()
     {
