@@ -356,7 +356,9 @@
                                 <label class="form-label">O‘qituvchi:</label>
                                 <select name="teacher_id" class="selectpicker w-100" id="selectpicker" data-live-search="true">
                                     <option value="" selected disabled >Tanlang</option>
-                                    
+                                    @foreach($teachers as $teacher)
+                                        <option value="{{ $teacher->id }}">{{ $teacher->name }}</option>
+                                    @endforeach
                                 </select>
                             </div>
 
