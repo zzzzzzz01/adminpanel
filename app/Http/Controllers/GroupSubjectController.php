@@ -33,6 +33,8 @@ class GroupSubjectController extends Controller
             $gs->has_journal = in_array($gs->id, $journalIds);
             return $gs;
         });
+
+        // dd($groupSubjects);
     
         return view('groups.groupSubject.index', [
             'group'            => $group,
