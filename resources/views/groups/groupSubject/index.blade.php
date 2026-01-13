@@ -161,9 +161,13 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>
-                                        <a href="{{ route('groupSubject.edit', [$group->id, $gs->subject->id]) }}">
-                                            {{ $gs->subject->name_uz ?? '-' }}
-                                        </a>
+                                    @if($gs->subject)
+            <a href="{{ route('groupSubject.edit', [$group->id, $gs->subject->id]) }}">
+                {{ $gs->subject->name_uz }}
+            </a>
+        @else
+            -
+        @endif
                                     </td>
                                     <td>{{ $gs->audit_hours ?? '-' }}</td>
                                     <td>{{ $gs->teacher->name ?? '-' }}</td>
