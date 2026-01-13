@@ -11,10 +11,17 @@ use Illuminate\Http\Request;
 
 class GroupSubjectController extends Controller
 {
-
     public function index(Group $group)
     {
-        return view('groups.groupSubject.index', compact('group'));
+        $subjects  = Subject::all();
+        $teachers  = User::whereHas('roles', function ($query) {
+            $query->where('roles.id', 3);
+        })->get();
+        $semesters = $group->semesters;
+
+        // dd($semesters);
+    
+        return view('groups.groupSubject.index', compact('group', 'subjects', 'teachers', 'semesters'));
     }
 
     public function store(Request $request, Group $group)

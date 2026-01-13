@@ -2,5 +2,5 @@
         <x-slot:title>Guruh fanlarini tahrirlash</x-slot:title>
 
 
-    sa
+    salom
 </x-layout.app>
