@@ -158,19 +158,7 @@
                             </thead>
                             <tbody>
                                 @foreach($groupSubjects as $gs)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>
-                                        <a href="{{ route('groupSubject.edit', [$group->id, $gs->subject->id]) }}">
-                                            {{ $gs->subject->name_uz ?? '-' }}
-                                        </a>
-                                    </td>
-                                    <td>{{ $gs->audit_hours }}</td>
-                                    <td>{{ $gs->teacher->name ?? '-' }}</td>
-                                    <td>{{ $gs->semester->name ?? '-' }}</td>
-                                    <td>{{ $gs->semester->academic_year ?? '-' }}</td>
-                                    
-                                </tr>
+                                
                                 @endforeach
 
                                 @if($groupSubjects->isEmpty())
