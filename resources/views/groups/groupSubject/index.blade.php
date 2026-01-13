@@ -157,6 +157,32 @@
                                 </tr>
                             </thead>
                             <tbody>
+                            @foreach($groupSubjects as $gs)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>
+                                        <a href="{{ route('groupSubject.edit', [$group->id, $gs->subject->id]) }}">
+                                            {{ $gs->subject->name_uz ?? '-' }}
+                                        </a>
+                                    </td>
+                                    <td>{{ $gs->audit_hours }}</td>
+                                    <td>{{ $gs->teacher->name ?? '-' }}</td>
+                                    <td>{{ $gs->semester->name ?? '-' }}</td>
+                                    <td>{{ $gs->semester->academic_year ?? '-' }}</td>
+                                    <td>
+                                        @php
+                                            $hasJournal = \App\Models\Journal::where('group_subject_id', $gs->id)->exists();
+                                        @endphp
+                                        <form action="{{ route('groupSubject.createJournal') }}" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="group_subject_id" value="{{ $gs->id }}">
+                                            <input type="checkbox" name="create_journal_{{ $gs->id }}" 
+                                                onchange="this.form.submit()" 
+                                                @if($hasJournal) checked disabled @endif>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @endforeach
 
                                 @if($groupSubjects->isEmpty())
                                 <tr>
