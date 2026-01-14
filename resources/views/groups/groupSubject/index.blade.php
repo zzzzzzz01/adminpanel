@@ -185,7 +185,7 @@
                                   </div>
                                 </td>
                                   <td>
-                                    <p class="text-sm">{{ $subject->pivot->audit_hours }}</p>
+                                    <p class="text-sm">{{ $subject->pivot->audit_hours ?? '-' }}</p>
                                   </td>
                                   <td>
                                     <p class="text-sm">{{ $subject->pivot->teacher->name ?? '-' }}</p>
@@ -196,7 +196,7 @@
                                         : '-' }}
                                   </td>
                                   <td>
-                                    {{ $subject->pivot->semester->academic_year }}
+                                    {{ $subject->pivot->semester->academic_year ?? '-' }}
                                   </td>
                                 <td>
                                     @php
@@ -214,11 +214,11 @@
                                 </td>
                               </tr>
                               @empty
-<tr>
-    <td colspan="8" class="text-center text-muted">
-        Fanlar mavjud emas
-    </td>
-</tr>
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">
+                                        Fanlar mavjud emas
+                                    </td>
+                                </tr>
                             @endforelse
                               </tbody>
                         </table>
