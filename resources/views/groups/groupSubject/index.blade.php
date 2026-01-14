@@ -156,6 +156,23 @@
                                     <th scope="col"></th>
                                 </tr>
                             </thead>
+                            <tbody>
+                            @php
+                                // Agar qidiruv bo‘lgan bo‘lsa, $subjects dan foydalanamiz
+                                $subjectList = isset($isSearch) ? $subjects : $group->subjects;
+
+                                function highlight($text, $search) {
+                                    if (!$search) return e($text);
+                                    $escaped = preg_quote($search, '/');
+                                    return preg_replace(
+                                        "/($escaped)/iu",
+                                        '<span style="background-color: rgba(13,110,253,0.25); border-radius:3px; padding:1px 2px;">$1</span>',
+                                        e($text)
+                                    );
+                                }
+                            @endphp
+
+                              </tbody>
                         </table>
                     </div>
                 </div>
