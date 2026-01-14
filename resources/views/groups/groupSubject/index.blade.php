@@ -172,7 +172,7 @@
                                 }
                             @endphp
 
-                            @forelse($subjectList as $subject)
+                            @foreach($subjectList as $subject)
                               <tr>
                                 <td>
                                   {{ $loop->iteration }}
@@ -213,13 +213,7 @@
                                     </form>
                                 </td>
                               </tr>
-                              @empty
-                                <tr>
-                                    <td colspan="8" class="text-center text-muted">
-                                        Fanlar mavjud emas
-                                    </td>
-                                </tr>
-                            @endforelse
+                            @endforeach
                               </tbody>
                         </table>
                     </div>
