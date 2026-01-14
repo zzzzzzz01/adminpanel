@@ -213,7 +213,13 @@
                                     </form>
                                 </td>
                               </tr>
-                            @endforeach
+                              @empty
+<tr>
+    <td colspan="8" class="text-center text-muted">
+        Fanlar mavjud emas
+    </td>
+</tr>
+                            @endforelse
                               </tbody>
                         </table>
                     </div>
