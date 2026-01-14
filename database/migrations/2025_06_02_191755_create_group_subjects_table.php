@@ -24,10 +24,7 @@ return new class extends Migration
             $table->integer('audit_hours')->default(0);
             $table->timestamps();
         
-            $table->unique(
-                ['group_id','subject_id','semester_id'],
-                'gs_unique'
-            );
+            
         });
     }
 
