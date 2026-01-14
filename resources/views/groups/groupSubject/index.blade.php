@@ -172,6 +172,48 @@
                                 }
                             @endphp
 
+                            @forelse($subjectList as $subject)
+                              <tr>
+                                <td>
+                                  {{ $loop->iteration }}
+                                </td>
+                                <td>
+                                  <div class="product">
+                                    <div class="image d-flex align-items-center justify-content-center">
+                                    </div>
+                                    <p class="text-sm"> <a href="{{ route('groupSubject.edit', [$group->id, $subject->id]) }}" style="color: #483D8B;"> {!! isset($search) ? highlight($subject->name_uz, $search) : e($subject->name_uz) !!}</a> </p>
+                                  </div>
+                                </td>
+                                  <td>
+                                    <p class="text-sm">{{ $subject->pivot->audit_hours }}</p>
+                                  </td>
+                                  <td>
+                                    <p class="text-sm">{{ $subject->pivot->teacher->name ?? '-' }}</p>
+                                  </td>
+                                  <td>
+                                    {{ $subject->pivot->semester_id 
+                                        ? \App\Models\Semester::find($subject->pivot->semester_id)->name 
+                                        : '-' }}
+                                  </td>
+                                  <td>
+                                    {{ $subject->pivot->semester->academic_year }}
+                                  </td>
+                                <td>
+                                    @php
+                                        $gsId = $subject->pivot->id ?? $subject->id;
+                                        $hasJournal = \App\Models\Journal::where('group_subject_id', $gsId)->exists();
+                                    @endphp
+
+                                    <form action="{{ route('groupSubject.createJournal') }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="group_subject_id" value="{{ $gsId }}">
+                                        <input type="checkbox" name="create_journal_{{ $gsId }}" 
+                                            onchange="this.form.submit()" 
+                                            @if($hasJournal) checked disabled @endif>
+                                    </form>
+                                </td>
+                              </tr>
+                            @endforeach
                               </tbody>
                         </table>
                     </div>
